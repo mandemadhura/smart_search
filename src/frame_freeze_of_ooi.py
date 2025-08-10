@@ -43,12 +43,6 @@ def find_frame_with_object(label, object_detection, frame_skip=10):
             if target_found:
                 #print(f"Found '{label}' in frame!")
 
-                # Save frozen frame
-                os.makedirs('frozen_frames', exist_ok=True)
-                save_path = os.path.join('frozen_frames', f"frozen_{label}.jpg")
-                cv2.imwrite(save_path, frame)
-                #print(f"Frame saved to {save_path}")
-
                 # Encode to base64
                 _, buffer = cv2.imencode('.jpg', frame)
                 found_frame_base64 = base64.b64encode(buffer).decode('utf-8')
