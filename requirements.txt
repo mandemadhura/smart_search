@@ -9,3 +9,4 @@ googletrans              >=4.0.0-rc1
 ultralytics              >=0.0.1
 pillow                   >=8.0.0
 azure-ai-inference       
+python-dotenv
