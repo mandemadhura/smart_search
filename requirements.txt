@@ -1,0 +1,11 @@
+# Requirements for Smart Search project
+speechrecognition        >=3.8.1
+opencv-python            >=4.5.3
+pyttsx3                  >=2.7
+openai                   >=0.25.0
+transformers             >=4.10.0
+pyaudio                  >=0.2.11
+googletrans              >=4.0.0-rc1
+ultralytics              >=0.0.1
+pillow                   >=8.0.0
+azure-ai-inference       
