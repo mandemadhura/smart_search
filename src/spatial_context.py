@@ -29,12 +29,19 @@ def get_spatial_context_description(frame, found_detections, target_detection, l
 
     # Prepare a textual summary of detections for GPT
     detection_summary = f"TARGET FOUND: {label}\n"
-    detection_summary += f"Target location: {target_detection['horizontal_position']} side, {target_detection['vertical_position']}, approximately {target_detection['depth_feet']:.1f} feet away\n\n"
+    if 'horizontal_position' in target_detection and 'vertical_position' in target_detection and 'depth_feet' in target_detection:
+        detection_summary += f"Target location: {target_detection['horizontal_position']} side, {target_detection['vertical_position']}, approximately {target_detection['depth_feet']:.1f} feet away\n\n"
+    else:
+        detection_summary += f"Target location: {target_detection['bbox']}\n\n"
     detection_summary += "Other objects in scene:\n"
 
     for det in found_detections:
         if det != target_detection:
-            detection_summary += f"- {det['class_name']} ({det['confidence']:.2f}): {det['horizontal_position']} side, {det['vertical_position']} side, {det['depth_feet']:.1f} feet away\n"
+            # Show bbox for all, and spatial info if available
+            line = f"- {det['class_name']} ({det['confidence']:.2f}), bbox: {det['bbox']}"
+            if 'horizontal_position' in det and 'vertical_position' in det and 'depth_feet' in det:
+                line += f", {det['horizontal_position']} side, {det['vertical_position']}, {det['depth_feet']:.1f} feet away"
+            detection_summary += line + "\n"
     client = ChatCompletionsClient(
         endpoint=endpoint_url,
         credential=AzureKeyCredential(api_key),
@@ -50,7 +57,7 @@ def get_spatial_context_description(frame, found_detections, target_detection, l
     Provide clear, concise navigation instructions focusing on:
     1. Target object location and distance
     2. Obstacles or helpful landmarks for navigation
-    3. Step-by-step guidance if needed
+    3. Step-by-step guidance for reaching the target
     4. Safety considerations
 
     Use simple language and specific distances. Format like: 'The [object] is [position] at [distance]. To reach it, [navigation steps]. Watch out for [obstacles].'"""),
@@ -68,3 +75,6 @@ def get_spatial_context_description(frame, found_detections, target_detection, l
         model=model_name
     )
     return response.choices[0].message.content.strip()
+
+
+

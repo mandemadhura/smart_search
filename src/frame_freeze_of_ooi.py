@@ -7,7 +7,7 @@ import os
 from src.object_detection import object_detection
 import numpy as np
 
-def find_frame_with_object(label, object_detection, frame_skip=10):
+def find_frame_with_object(label, object_detection):
     """
     Uses live video feed to find and return a frame containing the OOI, its base64 encoding, and detections.
     Processes only every `frame_skip`th frame.
@@ -24,7 +24,7 @@ def find_frame_with_object(label, object_detection, frame_skip=10):
     found_frame_base64 = None
     found_detections = None
     target_detection = None
-    frame_count = 0
+ 
 
     print(f"Looking for '{label}' in live video feed. Press 'q' to quit.")
 
@@ -34,13 +34,11 @@ def find_frame_with_object(label, object_detection, frame_skip=10):
             break
 
         cv2.imshow('Live Feed', frame)
-        frame_count += 1
+       
 
-        # Only process every `frame_skip`th frame
-        if frame_count % frame_skip == 0:
-            detections, target_found, target_detection = object_detection(frame, label)
+        detections, target_found, target_detection = object_detection(frame, label)
 
-            if target_found:
+        if target_found:
                 #print(f"Found '{label}' in frame!")
 
                 # Encode to base64

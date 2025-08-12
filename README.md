@@ -1,4 +1,4 @@
-# Smart Search: AI-Powered Object detection for the Visually Impaired
+# Smart Search: AI-Powered Object Navigation for the Visually Impaired
 
 ## Overview
 Smart Search is an end-to-end assistive AI system designed to help visually impaired users locate and navigate to objects of interest in their environment using voice commands, computer vision, spatial reasoning, and natural language guidance.
@@ -72,3 +72,5 @@ src/
 - [MiDaS Depth Estimation](https://github.com/isl-org/MiDaS)
 - [OpenAI GPT-4o](https://platform.openai.com/docs/models/gpt-4o)
 - [Azure OpenAI Service](https://learn.microsoft.com/en-us/azure/ai-services/openai/)
+
+
