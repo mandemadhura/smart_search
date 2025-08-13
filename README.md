@@ -1,3 +1,4 @@
+
 # Smart Search: AI-Powered Object Navigation for the Visually Impaired
 
 ## Overview
@@ -72,5 +73,3 @@ src/
 - [MiDaS Depth Estimation](https://github.com/isl-org/MiDaS)
 - [OpenAI GPT-4o](https://platform.openai.com/docs/models/gpt-4o)
 - [Azure OpenAI Service](https://learn.microsoft.com/en-us/azure/ai-services/openai/)
-
-
