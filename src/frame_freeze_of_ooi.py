@@ -6,6 +6,7 @@ import base64
 import os
 from src.object_detection import object_detection
 import numpy as np
+import time
 
 def find_frame_with_object(label, object_detection):
     """
@@ -27,7 +28,7 @@ def find_frame_with_object(label, object_detection):
  
 
     print(f"Looking for '{label}' in live video feed. Press 'q' to quit.")
-
+    start_time = time.time()
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
@@ -35,12 +36,21 @@ def find_frame_with_object(label, object_detection):
 
         cv2.imshow('Live Feed', frame)
        
-
+        t0 = time.time()
         detections, target_found, target_detection = object_detection(frame, label)
+        t1 = time.time()
+        # frame_id = 0
+        # if target_found:
+        #     print(f"object_detection function took [Frame {frame_id}] OOI {label} DETECTED in {t1 - t0:.2f} seconds")
+        # else:
+        #     print(f"object_detection function took [Frame {frame_id}] OOI {label} NOT DETECTED in {t1 - t0:.2f} seconds")
+        # frame_id += 1
 
         if target_found:
                 #print(f"Found '{label}' in frame!")
-
+                print(f"[Time] object_detection function took [Frame {label} DETECTED in {t1 - t0:.2f} seconds")
+                end_time = time.time()
+                print(f"[Time] Frame freeze took with OOI(time spent in walking or searching) {end_time - start_time:.2f} seconds")
                 # Encode to base64
                 _, buffer = cv2.imencode('.jpg', frame)
                 found_frame_base64 = base64.b64encode(buffer).decode('utf-8')
