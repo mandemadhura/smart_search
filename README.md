@@ -1,4 +1,3 @@
-
 # Smart Search: AI-Powered Object Navigation for the Visually Impaired
 
 ## Overview
