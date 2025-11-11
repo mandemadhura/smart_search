@@ -10,3 +10,5 @@ ultralytics              >=0.0.1
 pillow                   >=8.0.0
 azure-ai-inference       
 python-dotenv
+timm
+git+https://github.com/apple/ml-depth-pro.git

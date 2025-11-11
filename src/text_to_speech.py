@@ -14,6 +14,9 @@ def text_to_speech(text, rate=150, volume=1.0, voice=None):
     engine.say(text)
     engine.runAndWait()
 
+    engine.stop()
+    del engine
+
 # Example: To list available voices, run this code:
 def list_voices():
     import pyttsx3

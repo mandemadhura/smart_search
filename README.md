@@ -25,18 +25,24 @@ Smart Search is an end-to-end assistive AI system designed to help visually impa
 
 ## Project Structure
 ```
-src/
-├── config/                # Configuration and environment variables
-│   └── config.py
-├── voice_to_text.py       # Voice input and speech recognition
-├── ooi_detection.py       # Object of interest extraction from text
-├── object_detection.py    # YOLOv8 object detection and spatial reasoning
-├── Depth_estimation.py    # MiDaS depth estimation
-├── spatial_positions.py   # Calculate left/right/center, etc.
-├── frame_freeze_of_ooi.py # Freeze and save frame with OOI
-├── spatial_context.py     # Generate spatial context and navigation with GPT-4o
-├── text_to_speech.py      # Text-to-speech output
-└── 
+smart_search/
+├── init.sh                      # Download ml-depth-pro model
+├── checkpoints/                 # path for downloaded model .pt file
+├── config.yaml                  # config file
+├── src/
+      ├── Depth_estimation.py    # MiDaS depth estimation
+      ├── config
+      │   └── config.py          # Configuration and environment variables
+      ├── frame_freeze_of_ooi.py # Freeze and save frame with OOI
+      ├── label_detection.py     # Object of interest extraction from text
+      ├── models
+      │   ├── depth_model.py
+      │   └── ml_depth_pro.py    # ml-depth-pro model for depth estimation
+      ├── object_detection.py    # YOLOv8 object detection and spatial reasoning
+      ├── spatial_context.py     # Generate spatial context and navigation with GPT-4o
+      ├── spatial_positions.py   # Calculate left/right/center, etc.
+      ├── text_to_speech.py      # Text-to-speech output
+      └── voice_to_text.py       # Voice input and speech recognition
 ```
 
 ## Setup & Installation
@@ -51,6 +57,9 @@ src/
    API_KEY=your_azure_openai_api_key
    MODEL_NAME=gpt-4o
    ```
+4. **Install ml-depth-pro:**
+   ```bash init.sh```
+
 4. **Run the main program:**
    ```sh
    python main.py
@@ -66,9 +75,11 @@ src/
 - python-dotenv
 - azure-ai-inference
 - openai
+- depth_pro
 
 ## Acknowledgements
 - [YOLOv8 by Ultralytics](https://github.com/ultralytics/ultralytics)
 - [MiDaS Depth Estimation](https://github.com/isl-org/MiDaS)
 - [OpenAI GPT-4o](https://platform.openai.com/docs/models/gpt-4o)
 - [Azure OpenAI Service](https://learn.microsoft.com/en-us/azure/ai-services/openai/)
+- [ml-depth-pro Depth Estimation](https://github.com/apple/ml-depth-pro)

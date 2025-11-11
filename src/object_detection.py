@@ -3,19 +3,26 @@ from ultralytics import YOLO
 import sys
 import os
 from datetime import datetime
-from src.Depth_estimation import DepthEstimator
+#from src.Depth_estimation import DepthEstimator
+from src.config.config import load_config, get_depth_model
+
 from src.spatial_positions import calculate_spatial_position
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
 def object_detection(frame, label):
+    print(f"$$$$ label: {label}")
     if not hasattr(object_detection, 'model'):
         object_detection.model = YOLO('yolo11x.pt')
     model = object_detection.model
 
     if not hasattr(object_detection, 'depth_estimator'):
-        object_detection.depth_estimator = DepthEstimator(verbose=True)
-    depth_estimator = object_detection.depth_estimator
-
+        config = load_config(config_path="./config.yaml")
+        depth_model = get_depth_model(config=config)
+        object_detection.depth_estimator = depth_model.estimate_depth
+        #object_detection.depth_estimator = DepthEstimator(verbose=True)
+    print(f"###### {object_detection.depth_estimator}")
+    #depth_estimator = object_detection.depth_estimator
+    
     # Save folder setup (can comment out if not needed)
     save_folder = "detected_object_frames"
     os.makedirs(save_folder, exist_ok=True)
@@ -39,7 +46,10 @@ def object_detection(frame, label):
                 continue
 
             if label.lower() in class_name.lower():
-                depth = depth_estimator.estimate_depth(frame, [x1, y1, x2, y2], normalized=False)
+                #depth = depth_estimator.estimate_depth(frame, [x1, y1, x2, y2], normalized=False)
+                depth_meter = object_detection.depth_estimator(frame=frame, box=box)
+                depth = depth_meter * 3.28084
+                print(f"##### Object depth:{depth} feet")
                 h_pos, v_pos, norm_x, norm_y = calculate_spatial_position([x1, y1, x2, y2], frame.shape)
 
                 detection = {
@@ -57,10 +67,10 @@ def object_detection(frame, label):
                 detections.append(detection)
 
                 #----------- Save frame when target detected (comment/uncomment to enable/disable) -----------
-                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
-                filename = os.path.join(save_folder, f"frame_{timestamp}.png")
-                cv2.imwrite(filename, frame)
-                print(f"[INFO] Saved frame to {filename}")
+                #timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+                #filename = os.path.join(save_folder, f"frame_{timestamp}.png")
+                #cv2.imwrite(filename, frame)
+                #print(f"[INFO] Saved frame to {filename}")
                 #-------------------------------------------------------------------------------------------
 
             else:

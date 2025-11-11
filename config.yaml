@@ -1,0 +1,5 @@
+depth_model:
+    name: "ml_depth_pro"
+    device: "cpu"
+    params:
+      model_type: "small"
