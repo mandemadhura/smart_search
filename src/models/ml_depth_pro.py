@@ -12,7 +12,7 @@ class MlDepthPro(DepthModel):
     Implements ml depth pro model to get
     the depth of an object from an image
     """
-    def __init__(self, device = None, model_type = None):
+    def __init__(self, device: str = None, model_type: str = None):
         """Base initialization"""
         device = device or ("cuda" if torch.cuda.is_available() else "cpu")
         super().__init__(model_type=model_type, device=device)
@@ -20,7 +20,7 @@ class MlDepthPro(DepthModel):
 
     def load_model(self, device: str) -> tuple:
         """load and transform ml depth pro model"""
-        print(f"Using {device} to load the and infer ml-depth-pro model")
+        print(f"🔧 Using {device.upper()} to load and run ML Depth Pro model...")
 
         try:
             # Load model and transforms
@@ -94,4 +94,7 @@ class MlDepthPro(DepthModel):
         obj_depth = depth[y1:y2, x1:x2]
         if obj_depth.size > 0:
             median_depth = np.nanmedian(obj_depth)
+        print(f"Estimated object depth is: {median_depth} meters")
+        depth = median_depth * 3.28084
+        print(f"Estimated Object depth is:{depth} feet")
         return median_depth

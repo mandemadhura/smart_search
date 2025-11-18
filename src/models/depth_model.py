@@ -18,5 +18,5 @@ class DepthModel(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def estimate_depth(self, image: np.ndarray) -> np.ndarray:
+    def estimate_depth(self, frame: np.ndarray) -> np.ndarray:
         raise NotImplementedError()

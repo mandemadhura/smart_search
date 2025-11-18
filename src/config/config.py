@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 import yaml
 
 from src.models.ml_depth_pro import MlDepthPro
-from src.Depth_estimation import DepthEstimator
+from src.models.midas import DepthEstimator
 
 
 # Load .env file into environment variables

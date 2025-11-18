@@ -1,10 +1,11 @@
 import time
 from src.voice_to_text import voice_to_text
 from src.label_detection import detect_object_label
-from src.object_detection import object_detection
+from src.object_detection import ObjectDetector
 from src.frame_freeze_of_ooi import find_frame_with_object
 from src.spatial_context import get_spatial_context_description
 from src.text_to_speech import text_to_speech
+from src.config.config import load_config, get_depth_model
 import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
@@ -40,9 +41,18 @@ def main():
     label_speak_out = f"The object you are looking for is {label}."
     text_to_speech(label_speak_out)
 
+    config = load_config(config_path="./config.yaml")
+    depth_model = get_depth_model(config=config)
+    object_detector_model = config.get('object_detection_model').get('model', 'yolov8n.pt')
+    object_detector = ObjectDetector(model=object_detector_model, depth_model=depth_model)
     # 3. Find frame with OOI and get detections
     t5 = time.time()
-    frame, found_detections, target_detection = find_frame_with_object(label, object_detection)
+    frame, found_detections, target_detection = \
+        find_frame_with_object(
+                    label=label,
+                    object_detector=object_detector
+        )
+
     t6 = time.time()
     if frame is None or found_detections is None:
         print(f"No frame with '{label}' found.")

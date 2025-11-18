@@ -214,3 +214,4 @@ checkpoints/
 *.pt
 *.pth
 
+detected_object_frames/

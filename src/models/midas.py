@@ -5,8 +5,10 @@ import torch
 import math
 from typing import List, Tuple, Optional
 
-class DepthEstimator:
-    def __init__(self, model_type="MiDaS_small", device: Optional[str] = None, verbose: bool = True):
+from src.models.depth_model import DepthModel
+
+class DepthEstimator(DepthModel):
+    def __init__(self, device: Optional[str] = None, model_type="MiDaS_small", verbose: bool = True):
         self.verbose = verbose
         self.model_type = model_type
         self.device = torch.device(device if device else ("cuda" if torch.cuda.is_available() else "cpu"))
@@ -22,24 +24,27 @@ class DepthEstimator:
         self.inner_crop_ratio = 0.8
         self.use_center_patch = False
         self.center_patch_ratio = 0.25
+        self.load_model()
 
+    def load_model(self):
         try:
             # Attempt load
-            self.model = torch.hub.load("intel-isl/MiDaS", model_type)
+            self.model = torch.hub.load("intel-isl/MiDaS", self.model_type)
             self.model.to(self.device).eval()
             midas_transforms = torch.hub.load("intel-isl/MiDaS", "transforms")
 
-            if model_type in ["DPT_Large", "DPT_Hybrid"]:
+            if self.model_type in ["DPT_Large", "DPT_Hybrid"]:
                 self.transform = midas_transforms.dpt_transform
             else:
                 self.transform = midas_transforms.small_transform
 
             if self.verbose:
-                print(f"[DepthEstimator] Loaded {model_type} on {self.device}")
+                print(f"[DepthEstimator] Loaded {self.model_type} on {self.device}")
         except Exception as e:
             print(f"[DepthEstimator] Could not load MiDaS model: {e}")
             self.model = None
             self.transform = None
+            raise
 
     def _bbox_to_pixels(self, bbox: List[float], image_shape: Tuple[int, int], normalized: bool):
         h, w = image_shape[:2]
@@ -74,24 +79,25 @@ class DepthEstimator:
 
         return [x1, y1, x2, y2]
 
-    def estimate_depth(self, image: np.ndarray, bbox: List[float], normalized: bool = False,
+    def estimate_depth(self, frame: np.ndarray, box: np.ndarray, normalized: bool = False,
                        use_percentile: Optional[float] = None) -> float:
-        bbox_px = self._bbox_to_pixels(bbox, image.shape, normalized)
-        bbox_px = self._clamp_and_fix_bbox(bbox_px, image.shape)
+        bbox = box.xyxy[0].tolist()
+        bbox_px = self._bbox_to_pixels(bbox, frame.shape, normalized)
+        bbox_px = self._clamp_and_fix_bbox(bbox_px, frame.shape)
 
         # Early check: model present
         if self.model is None or self.transform is None:
             if self.verbose:
                 print("[DepthEstimator] No model/transform -> fallback")
-            return self.estimate_depth_fallback(bbox_px, image.shape)
+            return self.estimate_depth_fallback(bbox_px, frame.shape)
 
         x1, y1, x2, y2 = bbox_px
 
         # BGR -> RGB
         try:
-            rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            rgb_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         except Exception:
-            rgb_image = image
+            rgb_image = frame
 
         # Apply transform safely
         try:
@@ -119,7 +125,7 @@ class DepthEstimator:
         except Exception as e:
             if self.verbose:
                 print(f"[DepthEstimator] transform failed: {e} -> fallback")
-            return self.estimate_depth_fallback(bbox_px, image.shape)
+            return self.estimate_depth_fallback(bbox_px, frame.shape)
 
         # Ensure batch dim
         if input_batch.dim() == 3:
@@ -152,7 +158,7 @@ class DepthEstimator:
         except Exception as e:
             if self.verbose:
                 print(f"[DepthEstimator] model inference failed: {e} -> fallback")
-            return self.estimate_depth_fallback(bbox_px, image.shape)
+            return self.estimate_depth_fallback(bbox_px, frame.shape)
 
         # ROI
         # Ensure bbox still valid after conversions
@@ -160,13 +166,13 @@ class DepthEstimator:
         if x2 <= x1 or y2 <= y1:
             if self.verbose:
                 print("[DepthEstimator] invalid bbox after clamping -> fallback")
-            return self.estimate_depth_fallback(bbox_px, image.shape)
+            return self.estimate_depth_fallback(bbox_px, frame.shape)
 
         roi = depth_map[y1:y2, x1:x2]
         if roi.size == 0:
             if self.verbose:
                 print("[DepthEstimator] empty ROI -> fallback")
-            return self.estimate_depth_fallback(bbox_px, image.shape)
+            return self.estimate_depth_fallback(bbox_px, frame.shape)
 
         # Inner crop
         if self.inner_crop_ratio < 1.0:
@@ -194,7 +200,7 @@ class DepthEstimator:
         if roi.size == 0:
             if self.verbose:
                 print("[DepthEstimator] ROI has no finite values -> fallback")
-            return self.estimate_depth_fallback(bbox_px, image.shape)
+            return self.estimate_depth_fallback(bbox_px, frame.shape)
 
         if use_percentile is not None:
             stat_val = float(np.percentile(roi, use_percentile))
@@ -205,7 +211,7 @@ class DepthEstimator:
         if median_depth <= 0 or math.isnan(median_depth):
             if self.verbose:
                 print(f"[DepthEstimator] bad median_depth={median_depth} -> fallback")
-            return self.estimate_depth_fallback(bbox_px, image.shape)
+            return self.estimate_depth_fallback(bbox_px, frame.shape)
 
         # Use calibration if present; else heuristic
         if self.calib_a is not None and self.calib_b is not None:
