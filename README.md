@@ -7,7 +7,7 @@ Smart Search is an end-to-end assistive AI system designed to help visually impa
 - **Voice-to-Text:** Users speak their request (e.g., "Where is my bottle?") and the system transcribes it to text.
 - **Object of Interest (OOI) Detection:** The system extracts the target object label from the user's speech.
 - **Live Video Feed & Object Detection:** The webcam scans the environment, using YOLOv8 for real-time object detection.
-- **Depth Estimation:** For each detected object, the system estimates its distance using MiDaS monocular depth estimation.
+- **Depth Estimation:** For each detected object, the system estimates its distance using configured monocular depth estimation(Either MiDaS or ml-depth-pro).
 - **Spatial Reasoning:** Calculates the spatial position (left, right, center, etc.) and distance of each object.
 - **Frame Freezing:** When the target object is found, the relevant video frame is frozen and saved.
 - **Spatial Context with GPT-4o:** The system generates a clear, accessible spatial description and navigation guidance using GPT-4o, focusing on the target object and obstacles.
