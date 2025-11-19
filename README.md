@@ -30,13 +30,13 @@ smart_search/
 ├── checkpoints/                 # path for downloaded model .pt file
 ├── config.yaml                  # config file
 ├── src/
-      ├── Depth_estimation.py    # MiDaS depth estimation
       ├── config
       │   └── config.py          # Configuration and environment variables
       ├── frame_freeze_of_ooi.py # Freeze and save frame with OOI
       ├── label_detection.py     # Object of interest extraction from text
       ├── models
       │   ├── depth_model.py
+      │   ├── midas.py
       │   └── ml_depth_pro.py    # ml-depth-pro model for depth estimation
       ├── object_detection.py    # YOLOv8 object detection and spatial reasoning
       ├── spatial_context.py     # Generate spatial context and navigation with GPT-4o
@@ -57,10 +57,20 @@ smart_search/
    API_KEY=your_azure_openai_api_key
    MODEL_NAME=gpt-4o
    ```
-4. **Install ml-depth-pro:**
+4. **Install ml-depth-pro model:**
    ```bash init.sh```
 
-4. **Run the main program:**
+5. **Update config.yaml**
+   - Update `name`, `device` and `params` parameter in yaml
+     - For `depth_model` section:
+         - Use name as `midas` for MiDaS model
+         - Use name as `ml_depth_pro` for ml-depth-pro model
+         - Use `cpu` or `cuda` for device
+         - Update exact model type variant name. Ex. `MiDaS_small`
+     - For `object_detection_model` section:
+         - update `model` field with exact yolo model name to be used
+
+6. **Run the main program:**
    ```sh
    python main.py
    ```

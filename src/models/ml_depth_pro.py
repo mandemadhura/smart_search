@@ -97,4 +97,4 @@ class MlDepthPro(DepthModel):
         print(f"Estimated object depth is: {median_depth} meters")
         depth = median_depth * 3.28084
         print(f"Estimated Object depth is:{depth} feet")
-        return median_depth
+        return depth
