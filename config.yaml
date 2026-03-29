@@ -1,0 +1,12 @@
+depth_model:
+    name: "ml_depth_pro"
+    device: "cpu"
+    params:
+      model_type: "small"
+#depth_model:
+#    name: "midas"
+#    device: "cpu"
+#    params:
+#      model_type: "MiDaS_small"
+object_detection_model:
+    model: "yolov8n.pt"
